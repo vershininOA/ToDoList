@@ -29,7 +29,8 @@ class App extends Component {
 
     return ( 
         <div className="card-list">
-          {/* { console.log(Data) } */}
+          { console.log(Data) }
+          { console.log(Data) }
           <CardList />
         </div>    
     )};
