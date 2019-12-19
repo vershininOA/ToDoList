@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
-//import logo from './logo.svg';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
 import './App.css';
+import './index.css'
 
 import CardList from './CardList.js'
+import HomePage from './HomePage.js'
+import NotFound from './notfound.js'
 import Data from './Data.js'
-
-import './index.css'
 
 function loadCards() {
     if (!localStorage["CardSet"])
@@ -27,12 +33,18 @@ class App extends Component {
     loadCards()
     loadShowCardsState()
 
-    return ( 
-        <div className="card-list">
-          {/* { console.log(Data) } */}
-          { console.log(Data) }
-          <CardList />
-        </div>    
+    return (
+        <section>
+          <div>
+            <Router>
+              <Switch>
+                  <Route path="/" exact component={HomePage} />
+                  <Route path="/cardlist" exact component={CardList} />
+                  <Route path="*" component={NotFound} />
+              </Switch>
+            </Router>
+          </div>
+        </section>
     )};
 };
 
