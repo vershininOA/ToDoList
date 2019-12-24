@@ -1,51 +1,40 @@
 import React, { Component } from 'react';
 import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link
+	BrowserRouter as Router,
+	Switch,
+	Route
 } from "react-router-dom";
-import './App.css';
-import './index.css'
-
 import CardList from './CardList.js'
 import HomePage from './HomePage.js'
 import NotFound from './notfound.js'
 import Data from './Data.js'
-
-function loadCards() {
-    if (!localStorage["CardSet"])
-    {
-      let obj = JSON.stringify(Data)
-      localStorage["CardSet"] = obj
-    }
-}
-
-function loadShowCardsState() {
-    if(!localStorage["showCardsState"])
-    {
-      localStorage["showCardsState"] = "all"
-    }
-}
+import './App.css';
+import './index.css'
 
 class App extends Component {
-  render() {
-    loadCards()
-    loadShowCardsState()
+	componentDidMount() {
+		this.loadCards();
+		this.loadShowCardsState();
+	}
 
-    return (
-        <section>
-          <div>
-            <Router>
-              <Switch>
-                  <Route path="/" exact component={HomePage} />
-                  <Route path="/cardlist" exact component={CardList} />
-                  <Route path="*" component={NotFound} />
-              </Switch>
-            </Router>
-          </div>
-        </section>
-    )};
+	loadCards = () => {
+		if (!localStorage["CardSet"]) localStorage["CardSet"] = JSON.stringify(Data)
+	}
+
+	loadShowCardsState = () => {
+		if(!localStorage["showCardsState"]) localStorage["showCardsState"] = "all"
+	}
+
+	render() {
+		return (
+			<Router>
+				<Switch>
+					<Route path="/" exact component={HomePage} />
+					<Route path="/cardlist" exact component={CardList} />
+					<Route path="*" component={NotFound} />
+				</Switch>
+			</Router>
+	)};
 };
 
 export default App;
