@@ -1,433 +1,169 @@
-import React, {Component} from 'react'
-import Card from './Card.js'
+import React, { Component } from 'react'
+import { connect } from "react-redux"
 
-class CardList extends Component {
-	constructor() {
-		super();
+import {
+	FilterDeletedState,
+	FilterDoneState,
+	FilterNeedDoneState,
+	getMarkFlag,
+	VisibleCards
+} from "../src/selectors/index";
 
+import {
+	setFilterDeletedState,
+	setFilterDoneState,
+	setFilterNeedDoneState,
+	clearDeletedCards,
+	cardMarkAll,
+	cardUnMarkAll
+} from "./actions/cardList"
+
+import Card from './Card'
+import { addCard } from "./actions/card";
+
+const mapStateToProps = (state) => {
+	return {
+		getFilterDeleted: FilterDeletedState(state),
+		getFilterDone: FilterDoneState(state),
+		getFilterNeedDone: FilterNeedDoneState(state),
+		getMarkFlag: getMarkFlag(state),
+		getVisibleCards: VisibleCards(state)
+	}
+};
+
+const mapDispatchToProps = (dispatch) => {
+	return {
+		doSetFilterDeletedState: () => dispatch(setFilterDeletedState()),
+		doSetFilterDoneState: () => dispatch(setFilterDoneState()),
+		doSetFilterNeedDoneState: () => dispatch(setFilterNeedDoneState()),
+		addCard: (todoText) => dispatch(addCard(todoText)),
+		clearDeletedCards: () => dispatch(clearDeletedCards()),
+		cardMarkAll: () => dispatch(cardMarkAll()),
+		cardUnMarkAll: () => dispatch(cardUnMarkAll())
+	}
+};
+
+class ConnectedCardList extends Component {
+	constructor(props) {
+		super(props);
 		this.state = {
-			data: JSON.parse(localStorage["CardSet"]),
-			showCardsState: localStorage["showCardsState"],
 			cardText: ""
 		};
-
-		this.changeCardState = this.changeCardState.bind(this);
-		this.changeCardText = this.changeCardText.bind(this);
 	}
-
-	componentDidMount () {
-		// узнаем ширину скроллбара браузера
-		// создадим элемент с прокруткой
-		let div = document.createElement('div');
-
-		div.style.overflowY = 'scroll';
-		div.style.width = '50px';
-		div.style.height = '50px';
-
-		// мы должны вставить элемент в документ, иначе размеры будут равны 0
-		document.body.append(div);
-		let scrollWidth = div.offsetWidth - div.clientWidth;
-		
-		div.remove();
-
-		let cardSetDiv = document.getElementById("cardSetId");
-		cardSetDiv.style.marginTop = "8vw";
-		cardSetDiv.style.marginLeft = ((scrollWidth / 2).toString() + "px");
-	}
-
-	//////////////////////////////////////////////////////////////////
-	needToDoneCount = () => {
-		return this.state.data.reduce((currentCount, item) => {
-			if (!item.done && !item.deleted) return (currentCount + 1);
-			else return currentCount
-		}, 0)
-	};
-	
-	clearDeletedList = () => {
-		this.setState(
-			prevState => {
-				const newData = prevState.data.filter(item => {
-					return !item.deleted
-				});
-
-				localStorage["CardSet"] = JSON.stringify(newData);
-				return { data: newData }
-			})
-	};
-
-	changeCardText = (event) => {
-		const { id, value } = event.target;
-
-		this.setState(
-			prevState => {
-					const newData = prevState.data.map(item => {
-						if(item.todoId.toString() === id) {
-							item.todoText = value
-						}
-
-						return item
-					});
-
-					localStorage["CardSet"] = JSON.stringify(newData)
-					return { data: newData }
-				})
-	};
-	
-	doCardsChangeMark = () => {
-		this.setState(
-			prevState =>
-			{
-				let newData = prevState.data;
-				const flag = newData.reduce((currentRes, item) => {
-					return item.deleted ? (currentRes && true) : (currentRes && item.done)
-				}, true);
-
-				newData = newData.map(item => {
-					if(!item.deleted) item.done = !flag;
-					return item
-				});
-
-				localStorage["CardSet"] = JSON.stringify(newData)
-				return { data: newData }
-			}
-		)
-	};
 
 	cardNewChangeText = (event) => {
-		const {name, value} = event.target;
-		this.setState({ 
-			[name]: value 
+		const { name, value } = event.target;
+		this.setState({
+			[name]: value
 		})
 	};
-	
-	changeBoxShowCardsState(stName){
-		let _stName = stName
 
-		if ((stName === "done") 		&& (localStorage["showCardsState"] === "done")) 								_stName = "all";
-		if ((stName === "done") 		&& (localStorage["showCardsState"] === "deleted_done")) 						_stName = "deleted";
-		if ((stName === "done") 		&& (localStorage["showCardsState"] === "deleted_need_done")) 					_stName = "deleted_done";
-		if (((stName === "done") 		&& (localStorage["showCardsState"] === "deleted")) || ((stName === "deleted") 
-										&& (localStorage["showCardsState"] === "done"))) 								_stName = "deleted_done";
-		if ((stName === "deleted") 		&& (localStorage["showCardsState"] === "deleted")) 								_stName	= "all";
-		if ((stName === "deleted") 		&& (localStorage["showCardsState"] === "deleted_done")) 						_stName	= "done";
-		if ((stName === "need_done") 	&& (localStorage["showCardsState"] === "need_done")) 							_stName	= "all";
-		if ((stName === "need_done") 	&& (localStorage["showCardsState"] === "deleted_done")) 						_stName	= "deleted_need_done";
-		if ((stName === "need_done") 	&& (localStorage["showCardsState"] === "deleted_need_done")) 					_stName	= "deleted";
-		if (((stName === "need_done") 	&& (localStorage["showCardsState"] === "deleted")) || ((stName === "deleted") 
-										&& (localStorage["showCardsState"] === "need_done"))) 							_stName	= "deleted_need_done";
+	render() {
+		let cardSet = this.props.getVisibleCards;
+		const markFlag = this.props.getMarkFlag;
+		let buttonMark;
+		if (markFlag) {
+			buttonMark = <button className="btn btn-danger btnList" onClick={this.props.cardUnMarkAll}> Всё отменить </button>
+		} else {
+			buttonMark = <button className="btn btn-success btnList" onClick={this.props.cardMarkAll}> Всё готово </button>
+		}
 
-		this.setState(
-			prevState => {
-				const newShowCardsState = _stName
-				localStorage["showCardsState"] = newShowCardsState
-
-				return { showCardsState: newShowCardsState }
-			}
-		)
-	}
-
-	getMaxCardId = (data) => {
-		const maxId = data.reduce((maxIdCurrent, item) => (
-					  item.todoId > maxIdCurrent ? item.todoId : maxIdCurrent
-		), 0);
-			  
-		return maxId + 1
-	};
-
-	addCard = () => {
-		this.setState(
-			prevState => {
-				const newData = prevState.data;
-				newData.unshift(
-					{
-						todoId:		this.getMaxCardId(this.state.data),
-						todoText:	this.state.cardText,
-						done:		false,
-						deleted:	false
-					}
-				);
-
-				localStorage["CardSet"] = JSON.stringify(newData)
-
-				return { 
-							data:		newData,
-							cardText:	""
-						}
-			}
-		)
-	};
-
-	changeCardState = (id, cardState) => {
-		this.setState(
-			prevState => {
-				const newData = prevState.data.map(item => {
-					if (item.todoId === id) item[cardState] = !item[cardState];
-					return item
-				});
-
-				localStorage["CardSet"] = JSON.stringify(newData);
-				return { data: newData }
-			}
-		)
-	};
-
-	//////////////////////////////////////////////////////////////////
-	render () {
-		let btnClearDeletedList = "";
-		let btnMarkUnmark = "";
-		let _data;
-		let flagMark;
-
-		// не будем показывать кнопку "сделано/не сделано" если установлены фильтры для удалённых карточек
-		if (this.state.showCardsState !== "deleted" && this.state.showCardsState !== "deleted_done" && this.state.showCardsState !== "deleted_need_done") 
-		{      
-			btnMarkUnmark 	= 	<button 
-									className 	= "btn btn-success btnList"
-									onClick		= { this.doCardsChangeMark }
-								> 
-									Всё готово
-								</button>;
-			_data 			= 	this.state.data;
-			
-			flagMark = _data.reduce((doneCurrent, item) => 
+		return (
+			<section Style="height: 100%; width: 100%;">
 				{
-					if (item.deleted) return (doneCurrent && true);   // удалённая карточка всегда будет возвращать true чтобы не влиять на остальные
-					else return (doneCurrent && item.done)
-				}, true);
-		 
-			if (flagMark) btnMarkUnmark =	<button 
-												className	= "btn btn-danger btnList"
-												onClick		= { this.doCardsChangeMark }
-											>
-												Отменить!
-											</button>
-		}
+					(!cardSet) ? <label>Список пуст!</label> :
+						<div Style="margin-top:11%;">
+							{
+								cardSet.map(item => {
+									return (
+										<Card key={item.todoId}
+											todoId={item.todoId}
+											todoText={item.todoText}
+											done={item.done}
+											deleted={item.deleted}
+										/>
+									);
+								})
+							}
+						</div>
+				}
 
-		if (this.state.showCardsState === "deleted" || this.state.showCardsState === "deleted_done" || this.state.showCardsState === "deleted_need_done")
-		{
-			btnClearDeletedList = 	<button	className	= "btn btn-danger btnList" 
-											onClick		= { ()=>this.clearDeletedList() }
-									> 
-										Очистить 
-									</button>;
-		}
+				<div className="navPanel">
+					<   div className="navPanelTop">
+						<div className="navPanelCheckBoxArea">
+							<label className="lblCheckbox"> Удалённые </label>
+							<input
+								type="checkbox"
+								checked={this.props.getFilterDeleted}
+								onChange={() => this.props.doSetFilterDeletedState()}
+							/>
 
-		const showCardsState 	= this.state.showCardsState
-		let checkboxDone 		= 	<input 
-										type		= "checkbox"
-										onChange	= {()=>{ this.changeBoxShowCardsState("done") }}
-									/>;
-		let checkboxNeedDone 	= 	<input
-										type		= "checkbox"
-										onChange	= {()=>{ this.changeBoxShowCardsState("need_done") }}
-									/>;
-		let checkboxDeleted 	= 	<input
-										type		= "checkbox"
-										onChange	= {()=>{ this.changeBoxShowCardsState("deleted") }}
-									/>;
 
-		let cardSet;
-		switch(showCardsState)
-		{
-			case "all" : {
-					cardSet = this.state.data.map((item, i) => {
-						if (!item.deleted) {
-							return <Card    key			= {item.todoId}
-											todoId		= {item.todoId}
-											todoText	= {item.todoText}
-											done		= {item.done}
-											deleted		= {item.deleted}
+							<label className="lblCheckbox"> Сделано </label>
+							<input
+								type="checkbox"
+								checked={this.props.getFilterDone}
+								onChange={() => this.props.doSetFilterDoneState()}
+							/>
 
-											changeCardState	= {this.changeCardState}
-											changeCardText	= {this.changeCardText}
-									/>
-						}
-					});
-				break;
-			}
 
-			case "deleted" : {
-				cardSet = this.state.data.map((item, i) => {
-					if (item.deleted) {
-						return <Card    key			= {item.todoId}
-										todoId		= {item.todoId}
-										todoText	= {item.todoText}
-										done		= {item.done}
-										deleted		= {item.deleted}
-										disabled	= "disabled"
+							<label className="lblCheckbox"> Нужно сделать </label>
+							<input
+								type="checkbox"
+								checked={this.props.getFilterNeedDone}
+								onChange={() => this.props.doSetFilterNeedDoneState()}
+							/>
+						</div>
 
-										changeCardState	= {this.changeCardState}
-								/>
-					}
-				});
-
-				checkboxDeleted =	<input
-										type		= "checkbox"
-										onChange	= {()=>{ this.changeBoxShowCardsState("deleted") }}
-										checked
-									/>;
-				break;
-			}
-
-			case "done" : {
-				cardSet = this.state.data.map((item, i) => {
-					if (!item.deleted && item.done) {
-						return <Card    key			= {item.todoId}
-										todoId		= {item.todoId}
-										todoText	= {item.todoText}
-										done		= {item.done}
-										deleted		= {item.deleted}
-
-										changeCardState	= {this.changeCardState}
-								/>
-					}
-				});
-
-				checkboxDone = 	<input 
-									type		= "checkbox"
-									onChange	= {()=>{ this.changeBoxShowCardsState("done") }}
-									checked
-								/>;
-				break;
-			}
-
-			case "need_done" : {
-				cardSet = this.state.data.map((item, i) => {
-					if (!item.deleted && !item.done) {
-						return <Card    key			= {item.todoId}
-										todoId		= {item.todoId}
-										todoText	= {item.todoText}
-										done		= {item.done}
-										deleted		= {item.deleted}
-
-										changeCardState	= {this.changeCardState}
-										changeCardText	= {this.changeCardText}
-								/>
-					}
-				});
-
-				checkboxNeedDone 	=	<input 
-											type		= "checkbox"
-											onChange	= {()=>{ this.changeBoxShowCardsState("need_done") }}
-											checked
-										/>;
-				checkboxDone 		=	<input
-											type		= "checkbox"
-											onChange	= {()=>{ this.changeBoxShowCardsState("done") }}
-										/>;
-				break;
-			}
-
-			case "deleted_need_done" : {
-				cardSet = this.state.data.map((item, i) => {
-					if (item.deleted && !item.done) {
-						return <Card    key			= {item.todoId}
-										todoId		= {item.todoId}
-										todoText	= {item.todoText}
-										done		= {item.done}
-										deleted		= {item.deleted}
-
-										changeCardState	= {this.changeCardState}
-								/>
-					}
-				});
-
-				checkboxNeedDone 	= 	<input
-											type		= "checkbox"
-											onChange	= {()=>{ this.changeBoxShowCardsState("need_done") }}
-											checked
-										/>;
-				checkboxDeleted 	= 	<input
-											type		= "checkbox"
-											onChange	= {()=>{ this.changeBoxShowCardsState("deleted") }}
-											checked
-										/>;
-				checkboxDone 		= 	<input
-											type		= "checkbox"
-											onChange	= {()=>{ this.changeBoxShowCardsState("done") }}
-										/>;
-				break;
-			}
-
-			case "deleted_done" : {
-				cardSet = this.state.data.map((item, i) => {
-					if (item.deleted && item.done) {
-						return <Card    key			= {item.todoId}
-										todoId		= {item.todoId}
-										todoText	= {item.todoText}
-										done		= {item.done}
-										deleted		= {item.deleted}
-
-										changeCardState	= {this.changeCardState}
-								/>
-					}
-				});
-
-				checkboxDeleted =	<input
-										type		= "checkbox"
-										onChange	= {()=>{ this.changeBoxShowCardsState("deleted") }}
-										checked
-									/>;
-				checkboxDone 	=	<input
-										type		= "checkbox"
-										onChange	= {()=>{ this.changeBoxShowCardsState("done") }}
-										checked
-									/>;
-				break;
-			}
-
-			default : break;
-		}
-		
-		/////////////////////////////////////////////////////////////////////////////
-		return ( 
-			<section Style="height: 100vh; width: 99vw;">
-				<div Style="width:100%;">
-					<div id="cardSetId">
-						{ cardSet }
-					</div>
-					<div className="navPanel">
-						<div className="navPanelTop">
-							<div className="navPanelCheckBoxArea">
-								<label className="lblCheckbox">Удалённые</label> { checkboxDeleted }
-								<label className="lblCheckbox">Сделано</label> { checkboxDone }
-								<label className="lblCheckbox">Нужно сделать</label> { checkboxNeedDone }
-								<label className="badge badge-warning">Осталось сделать: { this.needToDoneCount() } </label>
-							</div>
-
+						{
 							<div className="navPanelBtnArea">
-								{ btnMarkUnmark } 
-								{ btnClearDeletedList }
-							</div>
+								{
+									(!this.props.getFilterDeleted) ? <div Style={"margin-right:5px; float:left;"}> {buttonMark} </div> : <span></span>
+								}
 
-							<div>
-								<a 	className="btn btn-warning" 
-									href="/" 
-									role="button" 
-									Style="font-size:11pt; font-weight:bold;"
+								{
+									(this.props.getFilterDeleted) ?
+										<div>
+											<button className="btn btn-danger btnList"
+												onClick={() => this.props.clearDeletedCards()}
+												Style={"float:left;"}
+											>
+												Очистить
+                                            </button>
+										</div>
+										: <span></span>
+								}
+
+								<a
+									className="btn btn-warning btnList"
+									Style="float:right;"
+									role="button"
+									href="/"
 								>
 									На главную
-								</a>
+                                </a>
 							</div>
-						</div>
+						}
+					</div>
 
-						<div className="navPanelBottom" >
-								<div className="form-inline">
-									<input 	className="form-control" 
-											name="cardText" 
-											type="text" 
-											Style="width:18vw;" 
-											value={ this.state.cardText } 
-											onChange={ this.cardNewChangeText } 
-											placeholder="текст новой задачи здесь" 
-									/> &nbsp;	
-									<button className="btn btn-success" 
-											onClick={() => {this.addCard()}}
-									> 
-										Ok 
-									</button>
-								</div>
-						</div>
+					<div className="navPanelBottom">
+						<input
+							name="cardText"
+							className="form-control"
+							type="text"
+							Style="width:18%; margin-right:5px;"
+							value={this.state.cardText}
+							onChange={this.cardNewChangeText}
+							placeholder={"введите текст здесь"}
+						/>
+
+						<button
+							className="btn btn-primary btnList"
+							// Style={"float:right;"}
+							onClick={() => this.props.addCard(this.state.cardText)}
+						>
+							Добавить
+                            </button>
 					</div>
 				</div>
 			</section>
@@ -435,4 +171,5 @@ class CardList extends Component {
 	}
 }
 
-export default CardList
+const CardList = connect(mapStateToProps, mapDispatchToProps)(ConnectedCardList);
+export default CardList;

@@ -25,7 +25,14 @@ const Data = [
         todoId: 38,
         todoText: "Проверить почту",
         done: false,
-        deleted: false
+        deleted: true
+    },
+
+    {
+        todoId: 39,
+        todoText: "Покрасить забор",
+        done: true,
+        deleted: true
     }
 ];
 

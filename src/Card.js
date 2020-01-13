@@ -1,37 +1,49 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import {
+	doneCard,
+	deleteCard,
+	changeCardText
+} from './actions/card'
 
-class Card extends Component {
-	render () {
-		const { 
-				deleted, 
-				done, 
-				todoId, 
-				todoText,
-				changeCardState,
-				changeCardText,
-			} = this.props;
-		
-			let useStyle = "";
+function mapDispatchToProps(dispatch) {
+	return {
+		doneCard: (id) => dispatch(doneCard(id)),
+		deleteCard: (id) => dispatch(deleteCard(id)),
+		changeCardText: (ev) => dispatch(changeCardText(ev))
+	}
+}
+
+class ConnectedCard extends Component {
+	render() {
+		const {
+			deleted,
+			done,
+			todoId,
+			todoText,
+		} = this.props;
+
+		let useStyle = "";
 
 		if (deleted) {
 			if (done) {
 				useStyle = "cardItemDeletedDone"
 			} else useStyle = "cardItemDeleted"
-		} else if (done) useStyle = "cardItemDone"
+		} else if (done) useStyle = "cardItemDone";
 
 		return (
 			<div className="cardBox">
 				<div className="card cardItem">
 					<div className={useStyle}>
 						<div className="card-body">
-							<p className="card-text"> 
-								<textarea 
+							<p className="card-text">
+								<textarea
 									id={todoId}
-									className="cardTextarea" 
+									className="cardTextarea"
 									rows="3"
 									disabled={deleted}
 									value={todoText}
-									onChange={ (event) => changeCardText(event) } 
+									onChange={(event) => this.props.changeCardText(event.target)}
 								/>
 							</p>
 						</div>
@@ -39,35 +51,37 @@ class Card extends Component {
 						<div className="cardBottomArea">
 							<div className="cardBottomCheckboxArea">
 								<label>
-									<input 
-										type="checkbox" 
-											disabled={deleted} 
-											checked={done} 
-											onChange={() => changeCardState(todoId, "done")}
+									<input
+										type="checkbox"
+										disabled={deleted}
+										checked={done}
+										onChange={() => this.props.doneCard(todoId)}
 									/>
-									Готово 
+									Готово
 								</label>
 							</div>
 
 							<div className="cardButtonDeleteArea">
-								<button 
+								<button
 									className="btn btn-primary"
-									onClick={ () => changeCardState(todoId, "deleted") }
-									style={{"float":"right"}}
+									onClick={() => this.props.deleteCard(todoId)}
+									style={{ "float": "right" }}
 								>
 									{deleted
-										?	"Восстановить"
-										:	"Удалить"
+										? "Восстановить"
+										: "Удалить"
 									}
 								</button>
 							</div>
 						</div>
-					</div>   
+					</div>
 				</div>
 			</div>
 		)
 	}
 }
+
+const Card = connect(null, mapDispatchToProps)(ConnectedCard);
 
 export default Card;
 

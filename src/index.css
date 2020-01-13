@@ -9,13 +9,13 @@ body {
 }
 
 .outBox {
-  display:flex;
-  align-items: center;
-  justify-content: center;
-  width: 100vw;
-  height: 100vh;
-  margin: 0 auto
-}
+   display:flex;
+   align-items: center;
+   justify-content: center;
+   width: 100vw;
+   height: 100vh;
+   margin: 0 auto
+ }
 
 .HomePage {
   box-shadow: 3px 6px 41px 6px #0e081b;
@@ -34,16 +34,16 @@ body {
 }
 
 .cardBox {
-  display:flex; 
-  align-items: center; 
-  justify-content: center; 
-  width: 99vw; 
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
   margin: 0 auto;
 }
 
 .cardItem {
   background-color: whitesmoke;
-  width: 20vw; 
+  width: 20%;
   margin-bottom: 10px;
   box-shadow: 0px 0px 5px 1px #0e081b;
 }
@@ -110,12 +110,13 @@ input[type=checkbox] {
   overflow:hidden; 
   top: 0; 
   left: 0; 
-   width:100vw;
+  width:100%;
+  height:200px;
 }
 
 .navPanelTop {
-  width: 100vw; 
-  height: 7vh; 
+  width: 100%;
+  height: 50%;
   background-color:DarkSlateGray; 
   display:flex; 
   align-items: center; 
@@ -124,9 +125,9 @@ input[type=checkbox] {
 }
 
 .navPanelBottom {
-  background-color:DarkSlateGray; 
-  width: 100vw; 
-  height: 8vh;
+  background-color:DarkSlateGray;
+  width: 100%;
+  height: 50%;
   display:flex; 
   align-items: center; 
   justify-content: center; 
@@ -134,17 +135,9 @@ input[type=checkbox] {
 }
 
 .navPanelCheckBoxArea {
-  width:26vw;
+  width:17%;
 }
 
 .navPanelBtnArea {
-  background-color:DarkSlateGray; 
-  width:7vw; 
-  float:left; 
-  margin-left:-25px; 
-  margin-right:20px;
-}
-
-input[type=checkbox]:focus {
-  outline: 0;
+  width:15%;
 }

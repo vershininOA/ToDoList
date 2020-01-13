@@ -1,0 +1,18 @@
+export const CARD_ADD = 'CARD_ADD';
+export const CARD_DELETE = 'CARD_DELETE';
+export const CARD_DONE = 'CARD_DONE';
+export const CARD_CHANGE_TEXT = "CARD_CHANGE_TEXT";
+export const CARD_CLEAR_DELETED = "CARD_CLEAR_DELETED";
+export const CARD_MARK_ALL = "CARD_MARK_ALL";
+export const CARD_UNMARK_ALL = "CARD_UNMARK_ALL";
+
+export const SHOW_ALL = 'SHOW_ALL';
+export const SHOW_DONE = 'SHOW_DONE';
+export const SHOW_NEED_DONE = 'SHOW_NEED_DONE';
+export const SHOW_DELETED = 'SHOW_DELETED';
+export const SHOW_DELETED_DONE = 'SHOW_DELETED_DONE';
+export const SHOW_DELETED_NEED_DONE = 'SHOW_DELETED_NEED_DONE';
+
+export const SET_FILTER_DELETED = "SET_FILTER_DELETED";
+export const SET_FILTER_DONE = "SET_FILTER_DONE";
+export const SET_FILTER_NEED_DONE = "SET_FILTER_NEED_DONE";
